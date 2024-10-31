@@ -1,39 +1,17 @@
 import io
-
 from os import environ
 from PIL import Image
-
+import asyncio
 import streamlit as st
+from assets import chita_pages, spb_pages, admin_pages, login_page
+from utils import login_, exit_
 
-# Словарь с логинами, паролями и ролями пользователей
-users = {
-    "admin": {"password": "admin_pass", "role": "admin"},
-    "chita_user": {"password": "chita_pass", "role": "Chita"},
-    "spb_user": {"password": "spb_pass", "role": "Spb"}
-}
+header_placeholder = st.empty()
 
-def authenticate(username, password):
-    user = users.get(username)
-    if user and user["password"] == password:
-        return user["role"]
-    return None
 
-def login():
-    st.title("Авторизация")
 
-    username = st.text_input("Имя пользователя")
-    password = st.text_input("Пароль", type="password")
-    login_button = st.button("Войти")
-
-    if login_button:
-        role = authenticate(username, password)
-        if role:
-            st.session_state["authenticated"] = True
-            st.session_state["role"] = role
-            st.success(f"Вы успешно вошли как {role}")
-            st.experimental_rerun()
-        else:
-            st.error("Неверное имя пользователя или пароль")
+        
+        
 
 def check_access(required_role):
     if "authenticated" not in st.session_state or not st.session_state["authenticated"]:
@@ -45,33 +23,32 @@ def check_access(required_role):
         st.warning("У вас нет доступа к этой странице.")
         st.stop()
 
+def show_page_for_role(role):
+    if role == "chita":
+        st.sidebar.title("Меню Chita")
+        chita_pages()
+    elif role == "spb":
+        st.sidebar.title("Меню SPB")
+        spb_pages()
+    elif role == "admin":
+        st.sidebar.title("Меню Admin")
+        admin_pages()
+    else:
+        st.write("Недоступная роль пользователя")
+
+
+
 def main():
     if "authenticated" not in st.session_state:
         st.session_state["authenticated"] = False
 
     if not st.session_state["authenticated"]:
-        login()
+        login_page()
     else:
         role = st.session_state["role"]
-
-        if role == "admin":
-            st.title("Админская панель")
-            st.write("У вас полный доступ ко всем функциям приложения.")
-            
-
-        elif role == "Chita":
-            st.title("Панель пользователя Chita")
-            st.write("У вас доступ к функциям, разрешенным для Chita.")
-            
-
-        elif role == "Spb":
-            st.title("Панель пользователя Spb")
-            st.write("У вас доступ к функциям, разрешенным для Spb.")
-            
-
-        
-        if st.button("Выйти"):
-            st.session_state["authenticated"] = False
-            st.session_state["role"] = None
-            st.experimental_rerun()
-main()
+        show_page_for_role(role)        
+   
+        exit_()
+   
+if __name__ =="__main__":
+    main()

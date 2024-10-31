@@ -1,22 +1,19 @@
-import io
-
-
-
-
+from routes import login
 from fastapi import FastAPI, File
 
 
 app = FastAPI(
-    title="DeepLabV3 image segmentation",
-    description="""Obtain semantic segmentation maps of the image in input via DeepLabV3 implemented in PyTorch.
-                           Visit this URL at port 8501 for the streamlit interface.""",
+    title="Fall 2024 scince work N.V Zadiram",
+    description="""Fullstack Fastapi Postgress Streamlit app for ores experimental data  Higland Gold
+    """,
     version="0.1.0",
 )
 
 
+app.include_router(login.router, prefix="/login")
 
 
-
-
-
+@app.get("/health_check")
+async def health_check():
+    return {"status": "success"}
 
