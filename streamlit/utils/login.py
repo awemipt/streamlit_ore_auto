@@ -37,6 +37,7 @@ def login_(username, password):
         role = None
     if role:
         st.session_state["authenticated"] = True
+        st.session_state["username"] = username
         st.session_state["role"] = role
         st.success(f"Вы успешно вошли как {role}")
         st.rerun()
