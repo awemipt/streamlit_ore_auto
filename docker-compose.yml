@@ -25,6 +25,42 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+      
+  db-postgres:
+    image: postgres
+    restart: always
+    container_name: postgres-db
+    user: postgres
+    secrets:
+      - db-password
+    environment:
+        POSTGRES_HOST: ${POSTGRES_HOST}
+        POSTGRES_PORT: ${POSTGRES_PORT}
+        POSTGRES_USER: ${POSTGRES_USER}
+        PGDATA: ${PGDATA}
+        POSTGRES_PASSWORD_FILE: ${POSTGRES_PASSWORD_FILE}
+
+    expose:
+      - 5444
+    ports:
+      - 5444:5432 
+    networks:
+      - deploy_network
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5 
+
+secrets:
+  db-password:
+    file: db/password.txt
+
+volumes:
+  postgres:
+    external: true
+    name: postgres-data
+
 networks:
   deploy_network:
     driver: bridge
