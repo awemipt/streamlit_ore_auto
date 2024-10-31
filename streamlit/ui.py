@@ -1,50 +1,77 @@
 import io
 
-import requests
+from os import environ
 from PIL import Image
-from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 import streamlit as st
 
-# interact with FastAPI endpoint
-backend = "http://fastapi:8000/segmentation"
+# Словарь с логинами, паролями и ролями пользователей
+users = {
+    "admin": {"password": "admin_pass", "role": "admin"},
+    "chita_user": {"password": "chita_pass", "role": "Chita"},
+    "spb_user": {"password": "spb_pass", "role": "Spb"}
+}
 
+def authenticate(username, password):
+    user = users.get(username)
+    if user and user["password"] == password:
+        return user["role"]
+    return None
 
-def process(image, server_url: str):
+def login():
+    st.title("Авторизация")
 
-    m = MultipartEncoder(fields={"file": ("filename", image, "image/jpeg")})
+    username = st.text_input("Имя пользователя")
+    password = st.text_input("Пароль", type="password")
+    login_button = st.button("Войти")
 
-    r = requests.post(
-        server_url, data=m, headers={"Content-Type": m.content_type}, timeout=8000
-    )
+    if login_button:
+        role = authenticate(username, password)
+        if role:
+            st.session_state["authenticated"] = True
+            st.session_state["role"] = role
+            st.success(f"Вы успешно вошли как {role}")
+            st.experimental_rerun()
+        else:
+            st.error("Неверное имя пользователя или пароль")
 
-    return r
+def check_access(required_role):
+    if "authenticated" not in st.session_state or not st.session_state["authenticated"]:
+        st.warning("Пожалуйста, войдите в систему.")
+        st.stop()
 
+    role = st.session_state.get("role")
+    if role != required_role and role != "admin":
+        st.warning("У вас нет доступа к этой странице.")
+        st.stop()
 
-# construct UI layout
-st.title("DeepLabV3 image segmentation")
+def main():
+    if "authenticated" not in st.session_state:
+        st.session_state["authenticated"] = False
 
-st.write(
-    """Obtain semantic segmentation maps of the image in input via DeepLabV3 implemented in PyTorch.
-         This streamlit example uses a FastAPI service as backend.
-         Visit this URL at `:8000/docs` for FastAPI documentation."""
-)  # description and instructions
-
-input_image = st.file_uploader("insert image")  # image upload widget
-
-if st.button("Get segmentation map"):
-
-    col1, col2 = st.columns(2)
-
-    if input_image:
-        segments = process(input_image, backend)
-        original_image = Image.open(input_image).convert("RGB")
-        segmented_image = Image.open(io.BytesIO(segments.content)).convert("RGB")
-        col1.header("Original")
-        col1.image(original_image, use_column_width=True)
-        col2.header("Segmented")
-        col2.image(segmented_image, use_column_width=True)
-
+    if not st.session_state["authenticated"]:
+        login()
     else:
-        # handle case with no image
-        st.write("Insert an image!")
+        role = st.session_state["role"]
+
+        if role == "admin":
+            st.title("Админская панель")
+            st.write("У вас полный доступ ко всем функциям приложения.")
+            
+
+        elif role == "Chita":
+            st.title("Панель пользователя Chita")
+            st.write("У вас доступ к функциям, разрешенным для Chita.")
+            
+
+        elif role == "Spb":
+            st.title("Панель пользователя Spb")
+            st.write("У вас доступ к функциям, разрешенным для Spb.")
+            
+
+        
+        if st.button("Выйти"):
+            st.session_state["authenticated"] = False
+            st.session_state["role"] = None
+            st.experimental_rerun()
+main()
