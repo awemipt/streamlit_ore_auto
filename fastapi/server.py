@@ -1,3 +1,4 @@
+
 from routes import login, smc
 from fastapi import FastAPI, File
 
@@ -11,7 +12,6 @@ app = FastAPI(
 
 
 app.include_router(login.router, prefix="/login")
-
 
 app.include_router(smc.router, prefix="/smc")
 @app.get("/health_check")

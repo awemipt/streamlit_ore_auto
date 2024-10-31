@@ -33,7 +33,7 @@ def smc_input():
                 "wirm_non_std": wirm_non_std
             }
         try:
-            asyncio.run(_send(data, endpoint="/smc/"))
+            asyncio.run(_send(data, endpoint="/smc"))
         except ValidationError as e:
             st.error(f"Некорректные данные{traceback.format_exc()}")
         except Exception as e:

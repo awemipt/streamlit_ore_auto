@@ -1,14 +1,23 @@
 from pydantic_settings import BaseSettings,  SettingsConfigDict
 from os import environ
 
+def read_pass(file_name):
+    with open(file_name, 'r') as f:
+        return f.read()
+
 
 
 
 class BaseComfig(BaseSettings):
     SECRETS_FILE_PATH: str
-    # @property
-    # def POSTGRES_URL(self):
-    #     return f"db+postgresql://{self.POSTGRES_USER}:{read_pass(self.POSTGRES_PASSWORD_FILE)}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_USER}"
+    POSTGRES_HOST: str
+    POSTGRES_PORT: int
+    POSTGRES_USER: str
+    PGDATA: str
+    POSTGRES_PASSWORD: str
+    @property
+    def POSTGRES_URL(self):
+        return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_USER}"
     
     # @property
     # def REDIS_URL(self):

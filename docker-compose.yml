@@ -8,6 +8,10 @@ services:
     container_name: fastapi
     env_file:
       - .env
+    depends_on:
+      db-postgres:
+        condition: service_healthy
+    
 
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -25,7 +29,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-      
   db-postgres:
     image: postgres
     restart: always
@@ -38,8 +41,8 @@ services:
         POSTGRES_PORT: ${POSTGRES_PORT}
         POSTGRES_USER: ${POSTGRES_USER}
         PGDATA: ${PGDATA}
-        POSTGRES_PASSWORD_FILE: ${POSTGRES_PASSWORD_FILE}
-
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        
     expose:
       - 5444
     ports:

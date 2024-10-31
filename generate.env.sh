@@ -15,7 +15,7 @@ POSTGRES_PORT=5432
 POSTGRES_USER=postgres
 PGDATA=/var/lib/postgresql/data/pgdata
 POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-
+DROP_TABLE_FLAG=True
 # =======================================================================================================================================================================================
 "
 

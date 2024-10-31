@@ -1,17 +1,13 @@
+import streamlit as st
+
+st.set_page_config(layout="wide")
 import io
 from os import environ
 from PIL import Image
 import asyncio
-import streamlit as st
+
 from assets import chita_pages, spb_pages, admin_pages, login_page
 from utils import login_, exit_
-
-header_placeholder = st.empty()
-
-
-
-        
-        
 
 def check_access(required_role):
     if "authenticated" not in st.session_state or not st.session_state["authenticated"]:
@@ -51,4 +47,5 @@ def main():
         exit_()
    
 if __name__ =="__main__":
+
     main()
