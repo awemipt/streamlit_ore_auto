@@ -1,12 +1,11 @@
 import hashlib
 import json
 import aiohttp
-
+from manager_cookie import controller
 from config import base_config
 
 import streamlit as st
 import asyncio
-
 
 BACKEND_URL = base_config.BACKEND_URL_DEV 
 
@@ -23,7 +22,7 @@ async def authenticate(username, password) -> str:
         "pass_hash": pass_hash
     }
     async with aiohttp.ClientSession() as session:
-        async with session.post(url=BACKEND_URL+"/login", json=data) as resp :
+        async with session.post(url=BACKEND_URL+"login", json=data) as resp :
             resp.raise_for_status()
             response_data = await resp.json()
             role = response_data.get('role')
@@ -33,19 +32,28 @@ async def authenticate(username, password) -> str:
 def login_(username, password):
     try:
         role = asyncio.run(authenticate(username, password))
-    except:
+        
+    except Exception as e:
+        st.error(str(e))
         role = None
     if role:
         st.session_state["authenticated"] = True
         st.session_state["username"] = username
         st.session_state["role"] = role
+        controller.set("authenticated", True)
+        controller.set("role", role)
+        
         st.success(f"Вы успешно вошли как {role}")
+        
         st.rerun()
     else:
         st.error("Неверное имя пользователя или пароль")
+def reset():
+    st.session_state["authenticated"] = False
+    controller.remove("authenticated")
+    st.session_state["role"] = None
+    controller.remove('role') 
+    st.rerun()
 
 def exit_():
-    if st.sidebar.button("Выйти"):
-        st.session_state["authenticated"] = False
-        st.session_state["role"] = None
-        st.rerun()
+    st.sidebar.button("Выйти", on_click=reset)

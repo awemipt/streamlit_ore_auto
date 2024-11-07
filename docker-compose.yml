@@ -15,19 +15,19 @@ services:
 
     extra_hosts:
       - "host.docker.internal:host-gateway"
-  streamlit:
-    build: streamlit/
-    depends_on:
-      - fastapi
-    ports: 
-        - 8501:8501
-    networks:
-      - deploy_network
-    container_name: streamlit
-    env_file:
-      - .env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+  # streamlit:
+  #   build: streamlit/
+  #   depends_on:
+  #     - fastapi
+  #   ports: 
+  #       - 8501:8501
+  #   networks:
+  #     - deploy_network
+  #   container_name: streamlit
+  #   env_file:
+  #     - .env
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
 
   db-postgres:
     image: postgres

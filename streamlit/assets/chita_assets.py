@@ -1,7 +1,7 @@
 import streamlit as st
-from logic_pages import smc_input, smc_out
+from logic_pages import smc_input, smc_out, dwt_input
 def chita_pages():
-    page = st.sidebar.radio("Страницы", ["SMC", "SMC_view", "Page 3"])
+    page = st.sidebar.radio("Страницы", ["SMC", "SMC_view", "Page 3", "DWT"])
     if page == "SMC":
         smc_input()
             
@@ -10,3 +10,6 @@ def chita_pages():
         
     elif page == "Page 3":
         st.write("Эта страница может быть просмотрена только пользователем с ролью: Chita")
+    elif page == "DWT":
+        dwt_input()
+        

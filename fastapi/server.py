@@ -14,6 +14,7 @@ app = FastAPI(
 app.include_router(login.router, prefix="/login")
 
 app.include_router(smc.router, prefix="/smc")
+
 @app.get("/health_check")
 async def health_check():
     return {"status": "success"}

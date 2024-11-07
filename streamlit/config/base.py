@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 load_dotenv()
 class BaseComfig(BaseSettings):
     BACKEND_URL_DEV: str
+    COOKIE_PASSWORD: str
+    COOKIE_PREFIX: str
     # @property
     # def POSTGRES_URL(self):
     #     return f"db+postgresql://{self.POSTGRES_USER}:{read_pass(self.POSTGRES_PASSWORD_FILE)}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_USER}"
