@@ -22,7 +22,7 @@ async def authenticate(username, password) -> str:
         "pass_hash": pass_hash
     }
     async with aiohttp.ClientSession() as session:
-        async with session.post(url=BACKEND_URL+"login", json=data) as resp :
+        async with session.post(url=BACKEND_URL+"/login", json=data) as resp :
             resp.raise_for_status()
             response_data = await resp.json()
             role = response_data.get('role')
@@ -32,7 +32,7 @@ async def authenticate(username, password) -> str:
 def login_(username, password):
     try:
         role = asyncio.run(authenticate(username, password))
-        
+
     except Exception as e:
         st.error(str(e))
         role = None
@@ -41,11 +41,11 @@ def login_(username, password):
         st.session_state["username"] = username
         st.session_state["role"] = role
         
-   
-        cookie_manager.set('role', role)
-        
+        cookie_manager.set('role', role, role)
+        cookie_manager.set('username', username, username+'cookie')
+        cookie_manager.set('authenticated', True, "authenticated")
+
         st.success(f"Вы успешно вошли как {role}")
-        
         st.rerun()
     else:
         st.error("Неверное имя пользователя или пароль")
@@ -53,10 +53,13 @@ def login_(username, password):
 def reset():
     st.session_state["authenticated"] = False
     st.session_state["role"] = None
-
-    cookie_manager.delete("authenticated")
-    cookie_manager.delete("role")
-    st.rerun()
-
+    
+    cookie_manager.cookies['authenticated'] = False
+    cookie_manager.cookies['role'] = None
+    cookie_manager.cookies['username'] = None
+    
 def exit_():
-    st.sidebar.button("Выйти", on_click=reset)
+    if st.sidebar.button("Выйти", on_click=reset):
+         st.rerun()
+
+    

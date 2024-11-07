@@ -6,6 +6,7 @@ from datetime import datetime
 from config import base_config
 from pydantic import ValidationError
 from message_models import SendSmcModel, Metadata
+from utils.data_sender import _send
 BACKEND_URL = base_config.BACKEND_URL_DEV 
 
 def smc_input():
@@ -32,25 +33,11 @@ def smc_input():
                 "wirm_bond": wirm_bond,
                 "wirm_non_std": wirm_non_std
             }
-        try:
-            asyncio.run(_send(data, endpoint="/smc"))
-        except ValidationError as e:
-            st.error(f"Некорректные данные{traceback.format_exc()}")
-        except Exception as e:
-            st.error(f"сервер не отвечает {traceback.format_exc()}")
-        else:
-            st.success("Данные отправлены")
-
-async def _send(data: dict, endpoint: str):
-    data = SendSmcModel(**data).model_dump()
-    metadata = Metadata(
-        username=st.session_state['username'], 
-        created_timestamp=datetime.now().timestamp(), 
-        updated_timestamp=datetime.now().timestamp()).model_dump()
-    
-    data.update(metadata)
-
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url=BACKEND_URL+endpoint, json=data) as resp :
-            resp.raise_for_status()
-            response_data = await resp.json()
+            try:
+                asyncio.run(_send(data, endpoint="/smc"))
+            except ValidationError as e:
+                st.error(f"Некорректные данные{traceback.format_exc()}")
+            except Exception as e:
+                st.error(f"сервер не отвечает {traceback.format_exc()}")
+            else:
+                st.success("Данные отправлены")

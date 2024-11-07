@@ -40,20 +40,25 @@ def show_page_for_role(role):
         st.write(role)
         st.write("Недоступная роль пользователя")
 
-
+def make_sessionstate_from_cookies():
+    cookies = cookie_manager.cookies
+    # print(cookies)
+    for key, value in cookies.items():
+        st.session_state[key] = value
+    pass
 
 def main():
+    
+    make_sessionstate_from_cookies()
     if "authenticated" not in st.session_state:
         st.session_state["authenticated"] = False
 
-    if not cookie_manager.get('role'):
-        
+    if not st.session_state["authenticated"]:
         login_page()
     else:
-        role =  cookie_manager.get("role") 
+        role =  st.session_state["role"] 
         show_page_for_role(role)        
-
+    
    
 if __name__ =="__main__":
-
     main()

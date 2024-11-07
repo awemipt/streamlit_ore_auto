@@ -4,7 +4,8 @@ from utils import login_
 
 def login_page():
     st.title("Авторизация")
-    st.text(cookie_manager.get_all())
     username = st.text_input("Имя пользователя")
     password = st.text_input("Пароль", type="password")
-    login_button = st.button("Войти", on_click=login_, args=[username, password])
+    login_button = st.button("Войти")
+    if login_button:
+        login_(username, password)
