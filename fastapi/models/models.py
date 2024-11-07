@@ -23,4 +23,14 @@ class SMC(Base):
     
     username = Column(String, index=True)
     created_timestamp = Column(Float, index=True)
-    updated_timestamp = Column(Float, index=True)
+
+
+class DWT_RESULT(Base):
+    __tablename__ = 'SMDWT_RESULTS'
+    __table_args__ = {'schema': schema}
+
+    id = Column(Integer, primary_key=True, index=True)
+
+     
+    username = Column(String, index=True)
+    created_timestamp = Column(Float, index=True)

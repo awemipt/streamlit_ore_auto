@@ -1,4 +1,4 @@
-from .smc import SMC, Base
+from .models import SMC, Base
 
 
 __all__ = ["SMC", "Base"]

@@ -17,3 +17,6 @@ async def get_SMC(db: AsyncSession , limit, offset ):
     query = select(SMC).limit(limit).offset(offset)
     result = await db.execute(query)
     return result
+
+async def write_DWT(db: AsyncSession, data):
+    pass

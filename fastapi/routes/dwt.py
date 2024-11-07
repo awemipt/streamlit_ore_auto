@@ -1,13 +1,8 @@
 import traceback
 from fastapi import APIRouter, HTTPException
-import aiofiles
-import asyncio
-import os
-from utils import read_json_async
-from crud.cruds import create_SMC, get_SMC
+from crud import create_SMC, get_SMC
 from core import get_db
-# from LogstashJsonSocketHandler import get_logger
-# logger = get_logger(__name__)
+
 from config import base_config
 router = APIRouter()
 
