@@ -8,7 +8,7 @@ import asyncio
 
 from assets import chita_pages, spb_pages, admin_pages, login_page
 from utils import login_, exit_
-from manager_cookie import controller
+from manager_cookie import cookie_manager
 
 
 def check_access(required_role):
@@ -37,6 +37,7 @@ def show_page_for_role(role):
         admin_pages()
         exit_()
     else:
+        st.write(role)
         st.write("Недоступная роль пользователя")
 
 
@@ -45,12 +46,11 @@ def main():
     if "authenticated" not in st.session_state:
         st.session_state["authenticated"] = False
 
-    if not controller.get('authenticated') or not st.session_state['authenticated']:
+    if not cookie_manager.get('role'):
         
         login_page()
     else:
-
-        role = st.session_state['role'] if st.session_state['role'] else controller.get("role") 
+        role =  cookie_manager.get("role") 
         show_page_for_role(role)        
 
    

@@ -1,7 +1,7 @@
 import hashlib
 import json
 import aiohttp
-from manager_cookie import controller
+from manager_cookie import cookie_manager
 from config import base_config
 
 import streamlit as st
@@ -40,19 +40,22 @@ def login_(username, password):
         st.session_state["authenticated"] = True
         st.session_state["username"] = username
         st.session_state["role"] = role
-        controller.set("authenticated", True)
-        controller.set("role", role)
+        
+   
+        cookie_manager.set('role', role)
         
         st.success(f"Вы успешно вошли как {role}")
         
         st.rerun()
     else:
         st.error("Неверное имя пользователя или пароль")
+
 def reset():
     st.session_state["authenticated"] = False
-    controller.remove("authenticated")
     st.session_state["role"] = None
-    controller.remove('role') 
+
+    cookie_manager.delete("authenticated")
+    cookie_manager.delete("role")
     st.rerun()
 
 def exit_():
