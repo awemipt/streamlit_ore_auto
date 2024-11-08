@@ -1,5 +1,5 @@
 
-from routes import login, smc
+from routes import login, smc, dwt
 from fastapi import FastAPI, File
 
 
@@ -14,7 +14,7 @@ app = FastAPI(
 app.include_router(login.router, prefix="/login")
 
 app.include_router(smc.router, prefix="/smc")
-
+app.include_router(dwt.router,  prefix="/dwt")
 @app.get("/health_check")
 async def health_check():
     return {"status": "success"}

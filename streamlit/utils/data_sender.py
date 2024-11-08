@@ -16,7 +16,7 @@ async def _send(data: dict, endpoint: str):
         ).model_dump()
     
     data.update(metadata)
-
+    
     async with aiohttp.ClientSession() as session:
         async with session.post(url=BACKEND_URL+endpoint, json=data) as resp :
             resp.raise_for_status()

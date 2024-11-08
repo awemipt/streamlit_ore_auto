@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Float, Integer, String, DateTime, Boolean, ARRAY, ForeignKey, LargeBinary
+from sqlalchemy import Column, Float, Integer, String, DateTime, Boolean, ARRAY, ForeignKey, LargeBinary, JSON
 from sqlalchemy.sql import func
 from sqlalchemy.schema import DefaultClause
 from sqlalchemy.orm import declarative_base, relationship
@@ -26,7 +26,7 @@ class SMC(Base):
 
 
 class DWT_RESULT(Base):
-    __tablename__ = 'SMDWT_RESULTS'
+    __tablename__ = 'DWT_RESULTS'
     __table_args__ = {'schema': schema}
 
     id = Column(Integer, primary_key=True, index=True)
@@ -34,3 +34,7 @@ class DWT_RESULT(Base):
      
     username = Column(String, index=True)
     created_timestamp = Column(Float, index=True)
+    data = Column(JSON)
+    initial_weight = Column(Float, index=True)
+    input_energy = Column(Float, index= True)
+    sample_name = Column(String, index=True)

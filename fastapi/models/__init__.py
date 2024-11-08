@@ -1,4 +1,4 @@
-from .models import SMC, Base
+from .models import SMC, Base, DWT_RESULT
 
 
-__all__ = ["SMC", "Base"]
+__all__ = ["SMC", "Base", "DWT_RESULT"]

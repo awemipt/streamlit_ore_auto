@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from models import SMC
+from models import SMC, DWT_RESULT
 
 
 
@@ -18,5 +18,11 @@ async def get_SMC(db: AsyncSession , limit, offset ):
     result = await db.execute(query)
     return result
 
-async def write_DWT(db: AsyncSession, data):
-    pass
+async def create_DWT_RESULT(db: AsyncSession, data):
+    db_DWT = DWT_RESULT(
+        **data
+    )
+    db.add(db_DWT)
+    await db.commit()
+    await db.refresh(db_DWT)
+    return db_DWT

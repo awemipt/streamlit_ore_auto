@@ -53,11 +53,10 @@ def fill_with_random_values():
                 st.session_state["data"]["Retention Weight (g)"] / initial_weight * 100
             )
 def submit(**kwargs):
-    data = kwargs
-    try:
-        asyncio.run(_send(data, endpoint="/dwt"))
-    except:
-        st.error("Сервер не отвечает")
+    kwargs['data'] = kwargs["data"].to_dict()
+    asyncio.run(_send(kwargs, endpoint="/dwt"))
+
+
 def dwt_input():
     if "data_cache" not in st.session_state :
         if "data_cache" not in cookie_manager.cookies:
@@ -110,5 +109,12 @@ def dwt_input():
     
 
     st.button("Fill with Random Values", on_click=fill_with_random_values)
-    st.button("Submit data", on_click=submit, kwargs={"data":data, "initial_weight":initial_weight, "input_energy": input_energy, "name": sample_name})
-    
+
+    submitted = st.button("Submit data")
+    if submitted:
+        try:
+            submit(data=edited_data,initial_weight=initial_weight, input_energy=input_energy, sample_name=sample_name)
+        except Exception as e:
+            st.error(f"Сервер не отвечает {e}")
+        else: 
+            st.success("Данные отправлены")
