@@ -5,6 +5,7 @@ data = None
 import random
 import asyncio
 from utils.data_sender import _send
+from manager_cookie import cookie_manager
 size_values = ["63 x 53", "45 x 37.5", "31.5 x 26.5", "22.4 x 19", "16 x 13.2"]
 size_mm_map = {
         "63 x 53": [53.0, 37.5, 26.5, 19.0, 13.2, 9.50, 6.70, 4.75, 3.35, 2.36, 1.70, 1.18, 0.850, 0.600, 0.425, "Pallet"],
@@ -16,12 +17,16 @@ size_mm_map = {
 if "data_cache" not in st.session_state:
     st.session_state["data_cache"] = {}
 
+def data_cache_to_cookie():
+    cookie_manager.cookies['data_cache'] = st.session_state['data_cache']
 
 def dwt_form_energy_or_size_change():
+    # data_cache_to_cookie()
+    sample_name = st.session_state['sample_name']
     selected_size = st.session_state["selected_size"]
     input_energy = st.session_state["dwt_energy"]
 
-    cache_key = (selected_size, input_energy)
+    cache_key = (sample_name, selected_size, input_energy)
     if cache_key in st.session_state["data_cache"]:
         st.session_state["data"] = st.session_state["data_cache"][cache_key]
     else:
@@ -33,6 +38,7 @@ def dwt_form_energy_or_size_change():
             "Retention comulitive percentage (%)": [0.0] * len(size_mm)
         })
         st.session_state["data"] = initial_data
+
 
 def fill_with_random_values():
     if "data" in st.session_state:
@@ -54,10 +60,13 @@ def submit(**kwargs):
         st.error("Сервер не отвечает")
 def dwt_input():
     if "data_cache" not in st.session_state :
-        st.session_state["data_cache"] ={}
+        if "data_cache" not in cookie_manager.cookies:
+            st.session_state['data_cache'] = {}
+        else:
+            st.session_state["data_cache"] = cookie_manager.cookies['data_cache']
 
     st.title("DWT Form")
-    name = st.text_input("Name of sample")
+    sample_name = st.text_input("Name of sample",on_change=dwt_form_energy_or_size_change, key='sample_name')
     selected_size = st.selectbox("Select size :", size_values, on_change=dwt_form_energy_or_size_change, key='selected_size')
     
     input_energy = st.number_input("DWT_energy (kWh/h)",  on_change=dwt_form_energy_or_size_change, key='dwt_energy')
@@ -83,7 +92,7 @@ def dwt_input():
             "Retention percentage (%)": None,
             "Retention comulitive percentage (%)": None
             },height=600
-            )
+            ,on_change=data_cache_to_cookie)
 
    
     st.subheader("result")
@@ -95,10 +104,11 @@ def dwt_input():
         edited_data['Retention percentage (%)'] = 0.0  
     st.write(edited_data,)
 
-    cache_key = (selected_size, input_energy)
+    cache_key = (sample_name, selected_size, input_energy)
     st.session_state["data_cache"][cache_key] = edited_data
-
+    
     
 
     st.button("Fill with Random Values", on_click=fill_with_random_values)
-    st.button("Submit data", on_click=submit, kwargs={"data":data, "initial_weight":initial_weight, "input_energy": input_energy, "name": name})
+    st.button("Submit data", on_click=submit, kwargs={"data":data, "initial_weight":initial_weight, "input_energy": input_energy, "name": sample_name})
+    
