@@ -4,8 +4,7 @@ services:
     ports: 
       - 8000:8000
     networks:
-      - deploy_network
-    container_name: fastapi
+      - backend
     env_file:
       - .env
     depends_on:
@@ -15,19 +14,22 @@ services:
 
     extra_hosts:
       - "host.docker.internal:host-gateway"
-  # streamlit:
-  #   build: streamlit/
-  #   depends_on:
-  #     - fastapi
-  #   ports: 
-  #       - 8501:8501
-  #   networks:
-  #     - deploy_network
-  #   container_name: streamlit
-  #   env_file:
-  #     - .env
-  #   extra_hosts:
-  #     - "host.docker.internal:host-gateway"
+  
+  streamlit:
+    build: streamlit/
+    depends_on:
+      - fastapi
+    ports: 
+        - 8501:8501
+    networks:
+      - frontend
+    container_name: streamlit
+    volumes:
+      - .streamlit:/.streamlit
+    env_file:
+      - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   db-postgres:
     image: postgres
@@ -48,12 +50,38 @@ services:
     ports:
       - 5444:5432 
     networks:
-      - deploy_network
+      - backend
     healthcheck:
       test: [ "CMD", "pg_isready" ]
       interval: 10s
       timeout: 5s
       retries: 5 
+
+  nginx-proxy:
+    build:
+      context: nginx
+      args:
+        - FASTAPI_SERVER_ADDR=${FASTAPI_SERVER_ADDR}
+        - STREAMLIT_FRONTEND_ADDR=${STREAMLIT_FRONTEND_ADDR}
+    restart: always
+    container_name: nginx-proxy
+    volumes:
+      - ./nginx/static:/usr/share/nginx/html:ro
+    ports:
+      - "${API_PORT}:80"
+    depends_on:
+      - streamlit
+      - fastapi
+    networks:
+      - frontend
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail  http://127.0.0.1:${API_PORT}/health-check  || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 secrets:
   db-password:
@@ -65,5 +93,7 @@ volumes:
     name: postgres-data
 
 networks:
-  deploy_network:
+  frontend:
+    driver: bridge
+  backend:
     driver: bridge

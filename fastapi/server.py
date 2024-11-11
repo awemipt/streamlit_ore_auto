@@ -11,11 +11,12 @@ app = FastAPI(
 )
 
 
-app.include_router(login.router, prefix="/login")
+app.include_router(login.router, prefix="/api/login")
 
-app.include_router(smc.router, prefix="/smc")
-app.include_router(dwt.router,  prefix="/dwt")
-@app.get("/health_check")
+app.include_router(smc.router, prefix="/api/smc")
+app.include_router(dwt.router,  prefix="/api/dwt")
+
+@app.get("/api/health_check")
 async def health_check():
     return {"status": "success"}
 
