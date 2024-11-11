@@ -1,6 +1,5 @@
 .vscode/
 .devcontainer/
 *.pyc
-fastapi/secrets/passwords.json
 .env
 .py
