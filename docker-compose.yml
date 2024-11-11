@@ -1,18 +1,18 @@
 services:
   fastapi:
     build: fastapi/
-    ports: 
+    ports: # TODO remove this in prod
       - 8000:8000
     networks:
       - backend
     env_file:
       - .env
     depends_on:
-      db-postgres:
+      db-postgres: # TODO remove this in prod
         condition: service_healthy
     
 
-    extra_hosts:
+    extra_hosts: # TODO remove this in prod
       - "host.docker.internal:host-gateway"
   
   streamlit:
@@ -28,7 +28,7 @@ services:
       - .streamlit:/.streamlit
     env_file:
       - .env
-    extra_hosts:
+    extra_hosts: # TODO remove this in prod
       - "host.docker.internal:host-gateway"
 
   db-postgres:
@@ -47,7 +47,7 @@ services:
         
     expose:
       - 5444
-    ports:
+    ports: # TODO remove this in prod
       - 5444:5432 
     networks:
       - backend
@@ -80,7 +80,7 @@ services:
       interval: 10s
       timeout: 10s
       retries: 3
-    extra_hosts:
+    extra_hosts: 
       - "host.docker.internal:host-gateway"
 
 secrets:
