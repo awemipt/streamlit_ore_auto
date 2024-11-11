@@ -1,6 +1,11 @@
 services:
   fastapi:
-    build: fastapi/
+    build:
+      context: fastapi/
+      args:
+        - ADMIN_PASS_HASH=${ADMIN_PASS_HASH}
+        - CHITA_PASS_HASH=${CHITA_PASS_HASH}
+        - SPB_PASS_HASH=${SPB_PASS_HASH}
     ports: # TODO remove this in prod
       - 8000:8000
     networks:

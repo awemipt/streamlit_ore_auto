@@ -1,4 +1,4 @@
-FROM t.gutor.by:5050/qkd/common_submodules/cnpr_module/nginx:alpine3.19
+FROM nginx:1.27.2-alpine
 
 USER root
 # Add bash for boot cmd
