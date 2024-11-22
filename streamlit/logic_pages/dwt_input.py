@@ -93,7 +93,7 @@ def dwt_input():
             "Процент удержания (%)": None,
             "Кумулятивный процент удержания (%)": None
             },height=600
-            ,on_change=data_cache_to_cookie)
+            )
 
    
     st.subheader("result")
@@ -107,7 +107,8 @@ def dwt_input():
 
     cache_key = (sample_name, selected_size, input_energy)
     st.session_state["data_cache"][cache_key] = edited_data
-    
+    if st.button("Сохранить изменения"):
+        data_cache_to_cookie()
     
 
     st.button("Fill with Random Values", on_click=fill_with_random_values)
