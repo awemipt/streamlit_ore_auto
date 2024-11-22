@@ -24,8 +24,7 @@ services:
     build: streamlit/
     depends_on:
       - fastapi
-    ports: 
-        - 8501:8501
+   
     networks:
       - frontend
     container_name: streamlit
@@ -49,7 +48,7 @@ services:
         POSTGRES_USER: ${POSTGRES_USER}
         PGDATA: ${PGDATA}
         POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-        
+         
     expose:
       - 5444
     ports: # TODO remove this in prod
@@ -61,6 +60,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5 
+    volumes:
+      - postgres:/var/lib/postgresql/data  
 
   nginx-proxy:
     build:
@@ -95,7 +96,7 @@ secrets:
 volumes:
   postgres:
     external: true
-    name: postgres-data
+    name: postgres-data-ore
 
 networks:
   frontend:

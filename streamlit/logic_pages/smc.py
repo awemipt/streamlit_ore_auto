@@ -41,3 +41,4 @@ def smc_input():
                 st.error(f"сервер не отвечает {traceback.format_exc()}")
             else:
                 st.success("Данные отправлены")
+

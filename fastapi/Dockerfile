@@ -25,4 +25,4 @@ ENV SPB_PASS_HASH=$SPB_PASS_HASH
 RUN envsubst '$ADMIN_PASS_HASH,$CHITA_PASS_HASH,$SPB_PASS_HASH' < /fastapi/secrets/passwords.json.template > /fastapi/secrets/passwords.json
 EXPOSE 8000
 
-CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000" ]

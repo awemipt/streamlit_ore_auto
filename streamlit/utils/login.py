@@ -3,11 +3,12 @@ import json
 import aiohttp
 from manager_cookie import cookie_manager
 from config import base_config
-
+import traceback
 import streamlit as st
 import asyncio
 
 BACKEND_URL = base_config.BACKEND_URL_DEV 
+
 
 def hash_password(password: str) -> str:
     password_bytes = password.encode('utf-8')
@@ -22,7 +23,7 @@ async def authenticate(username, password) -> str:
         "pass_hash": pass_hash
     }
     async with aiohttp.ClientSession() as session:
-        async with session.post(url=BACKEND_URL+"/login", json=data) as resp :
+        async with session.post(url=BACKEND_URL+"/api/login", json=data) as resp :
             resp.raise_for_status()
             response_data = await resp.json()
             role = response_data.get('role')
@@ -35,6 +36,8 @@ def login_(username, password):
 
     except Exception as e:
         st.error(str(e))
+        st.error(traceback.format_exc())
+        print(BACKEND_URL)
         role = None
     if role:
         st.session_state["authenticated"] = True

@@ -4,3 +4,4 @@ pydantic_settings==2.6.0
 pydantic==2.9.2
 pandas==2.2.3
 Extra-Streamlit-Components==0.1.71
+plotly==5.24.1

@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 
+
 data = None
 import random
 import asyncio
@@ -32,29 +33,30 @@ def dwt_form_energy_or_size_change():
     else:
         size_mm = size_mm_map[selected_size]
         initial_data = pd.DataFrame({
-            "Size (mm)": size_mm,
-            "Retention Weight (g)": [0.0] * len(size_mm),
-            "Retention percentage (%)": [0.0] * len(size_mm),
-            "Retention comulitive percentage (%)": [0.0] * len(size_mm)
+            "Размер (мм)": size_mm,
+            "Удержаный вес (г)": [0.0] * len(size_mm),
+            "Процент удержания (%)": [0.0] * len(size_mm),
+            "Кумулятивный процент удержания (%)": [0.0] * len(size_mm)
         })
         st.session_state["data"] = initial_data
 
 
 def fill_with_random_values():
     if "data" in st.session_state:
-        st.session_state["data"]["Retention Weight (g)"] = [
+        st.session_state["data"]["Удержаный вес (г)"] = [
             random.uniform(0.0, 100.0) for _ in range(len(st.session_state["data"]))
         ]
 
 
         initial_weight = st.session_state.get("initial_weight", 0)
         if initial_weight > 0:
-            st.session_state["data"]["Energy Percentage (%)"] = (
-                st.session_state["data"]["Retention Weight (g)"] / initial_weight * 100
+            st.session_state["data"]["Процент удержания (%)"] = (
+                st.session_state["data"]["Удержаный вес (г)"] / initial_weight * 100
             )
 def submit(**kwargs):
     kwargs['data'] = kwargs["data"].to_dict()
-    asyncio.run(_send(kwargs, endpoint="/dwt"))
+    
+    asyncio.run(_send(kwargs, endpoint="/api/dwt"))
 
 
 def dwt_input():
@@ -64,43 +66,43 @@ def dwt_input():
         else:
             st.session_state["data_cache"] = cookie_manager.cookies['data_cache']
 
-    st.title("DWT Form")
-    sample_name = st.text_input("Name of sample",on_change=dwt_form_energy_or_size_change, key='sample_name')
-    selected_size = st.selectbox("Select size :", size_values, on_change=dwt_form_energy_or_size_change, key='selected_size')
+    st.title("DWT Форма")
+    sample_name = st.text_input("Название образца",on_change=dwt_form_energy_or_size_change, key='sample_name')
+    selected_size = st.selectbox("Выберите размер :", size_values, on_change=dwt_form_energy_or_size_change, key='selected_size')
     
-    input_energy = st.number_input("DWT_energy (kWh/h)",  on_change=dwt_form_energy_or_size_change, key='dwt_energy')
+    input_energy = st.number_input("Энергия DWT теста (кВт/ч)",  on_change=dwt_form_energy_or_size_change, key='dwt_energy')
     
 
-    initial_weight = st.number_input("Enter Initial Sample Weight (g):", min_value=0.0, format="%.2f")
+    initial_weight = st.number_input("Вес образца (г)", min_value=0.0, format="%.2f")
 
     if "data" in st.session_state:
         edited_data = st.session_state["data"]
     else:
         size_mm = size_mm_map[selected_size]
         edited_data = pd.DataFrame({
-            "Size (mm)": size_mm,
-            "Retention Weight (g)": [0.0] * len(size_mm),
-            "Retention percentage (%)": [0.0] * len(size_mm),
-            "Retention comulitive percentage (%)": [0.0] * len(size_mm)
+            "Размер (мм)": size_mm,
+            "Удержаный вес (г)": [0.0] * len(size_mm),
+            "Процент удержания (%)": [0.0] * len(size_mm),
+            "Кумулятивный процент удержания (%)": [0.0] * len(size_mm)
         })
         st.session_state["data"] = edited_data
 
-    st.write("Input Retention Weights in the table below:")
-    edited_data = st.data_editor(edited_data, column_config={"Size (mm)": "Size (mm)",
-            "Retention Weight (g)": "Retention Weight (g)",
-            "Retention percentage (%)": None,
-            "Retention comulitive percentage (%)": None
+    st.write("Введите вес удержания в таблице ниже:")
+    edited_data = st.data_editor(edited_data, column_config={"Размер (мм)": "Размер (мм)",
+            "Удержаный вес (г)": "Удержаный вес (г)",
+            "Процент удержания (%)": None,
+            "Кумулятивный процент удержания (%)": None
             },height=600
             ,on_change=data_cache_to_cookie)
 
    
     st.subheader("result")
-    total_weight = edited_data['Retention Weight (g)'].sum()
+    total_weight = edited_data["Удержаный вес (г)"].sum()
     if total_weight > 0:
-        edited_data['Retention percentage (%)'] = (edited_data['Retention Weight (g)'] / total_weight) * 100
-        edited_data['Retention comulitive percentage (%)'] = edited_data['Retention percentage (%)'].cumsum()
+        edited_data['Процент удержания (%)'] = (edited_data['Удержаный вес (г)'] / total_weight) * 100
+        edited_data['Кумулятивный процент удержания (%)'] = edited_data['Процент удержания (%)'].cumsum()
     else:
-        edited_data['Retention percentage (%)'] = 0.0  
+        edited_data['Процент удержания (%)'] = 0.0  
     st.write(edited_data,)
 
     cache_key = (sample_name, selected_size, input_energy)
@@ -110,10 +112,15 @@ def dwt_input():
 
     st.button("Fill with Random Values", on_click=fill_with_random_values)
 
-    submitted = st.button("Submit data")
+    submitted = st.button("Отправить данные")
     if submitted:
         try:
-            submit(data=edited_data,initial_weight=initial_weight, input_energy=input_energy, sample_name=sample_name)
+            data_to_send =edited_data.rename(columns={"Удержаный вес (г)": "Retention Weight (g)"
+                                        , "Процент удержания (%)": "Retention percentage (%)", 
+                                        "Кумулятивный процент удержания (%)": "Retention comulitive percentage (%)", 
+                                        "Размер (мм)": "Size (mm)"})
+            submit(data=data_to_send,initial_weight=initial_weight, input_energy=input_energy, sample_name=sample_name)
+
         except Exception as e:
             st.error(f"Сервер не отвечает {e}")
         else: 
