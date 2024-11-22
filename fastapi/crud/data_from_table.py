@@ -19,7 +19,7 @@ async def get_t10_data(db: AsyncSession, sample_name: str):
             size = data['Size (mm)']['0']
             sizes = np.array(list(data['Size (mm)'].values())[:-1], dtype=float)
             target_size = float(size) / 10
-            retentions = np.array(list(data['Retention comulitive percentage (%)'].values())[:-1], dtype=float)
+            retentions = np.array(list(data['Retention percentage (%)'].values())[:-1], dtype=float)
             
             closest_idx = np.abs(sizes - target_size).argmin()
             retention_at_t10 = retentions[closest_idx]

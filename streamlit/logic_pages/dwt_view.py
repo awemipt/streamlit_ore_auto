@@ -34,8 +34,31 @@ def dwt_view_page():
             response = requests.get(f"{BACKEND_URL}/api/dwt/dwt-data/get_sample", params={"sample_name": selected_sample})
             if response.status_code == 200:
                 data = response.json()
-                retention_at_t10 = data["retention_at_t10"]
-                st.write(retention_at_t10)
+                # retention_at_t10 = data["retention_at_t10"]
+                st.write(data)
+                # Преобразуем данные в массивы для построения графика
+                energies = [point["energy"] for point in data]
+                retentions = [point["retention_at_t10"] for point in data]
+
+                # Создаем график
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(
+                    x=energies,
+                    y=retentions,
+                    mode='markers+lines',
+                    name='t10 vs Energy'
+                ))
+
+                # Настраиваем внешний вид графика
+                fig.update_layout(
+                    title="Зависимость t10 от энергии",
+                    xaxis_title="Энергия (кВт⋅ч/т)",
+                    yaxis_title="t10 (%)",
+                    showlegend=True
+                )
+
+                # Отображаем график
+                st.plotly_chart(fig, use_container_width=True)
                 # Создаем DataFrame из полученных данных
                 # df = pd.DataFrame(data)
                 

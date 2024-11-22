@@ -30,6 +30,6 @@ async def get_dwt_sample(sample_name: str):
     try:
         db = await get_db()
         res = await get_t10_data(db=db, sample_name=sample_name)
-        return {"retention_at_t10": res}
+        return res
     finally:
         await db.close()  #
