@@ -1,10 +1,13 @@
+import os
 from pydantic_settings import BaseSettings,  SettingsConfigDict
 from os import environ
 
 
 from dotenv import load_dotenv
+load_dotenv(override=True)
 
-load_dotenv()
+print(f"{os.environ['BACKEND_URL_DEV']}")
+
 class BaseComfig(BaseSettings):
     BACKEND_URL_DEV: str
     
