@@ -41,18 +41,14 @@ def dwt_view_page():
                 st.write(data, )
                 energies = [point["energy"] for point in data]
                 retentions = [point["retention_at_t10"] for point in data]
-                # Подбор параметров A и b с помощью метода наименьших квадратов
-                
-                
-                # Преобразуем списки в numpy массивы
+            
                 energies_array = np.array(energies)
                 retentions_array = np.array(retentions)
                 
-                try:# Находим оптимальные параметры A и b
+                try:
                     popt, _ = curve_fit(fit_function, energies_array, retentions_array, p0=[100, 0.1])
                     A_opt, b_opt = popt
                     
-                    # Генерируем точки для построения кривой
                     energy_fit = np.linspace(min(energies), max(energies), 100)
                 
                     retention_fit = fit_function(energy_fit, A_opt, b_opt)

@@ -36,7 +36,7 @@ def dwt_input_excel():
         st.write(df.head())
     if st.button("Отравить данные"):
         try:
-            asyncio.run(_send_excel(bytes_data, "/api/dwt/upload_excel"))
+            asyncio.run(_send_excel(bytes_data, excel_file.name, "/api/dwt/upload_excel"))
         except Exception as e:
             st.error(f"Ошибка при отправке данных. \n {traceback.format_exc()}")
         else:

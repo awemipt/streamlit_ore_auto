@@ -42,13 +42,16 @@ async def get_dwt_sample(sample_name: str):
         await db.close()  #
 
 @router.post("/upload_excel")
-async def upload_excel( file: UploadFile, username: str = Form(...)):
-    bytes_data = io.BytesIO(file.file.read())
-    excel_file = pd.ExcelFile(bytes_data)
-    retentions, energies, sizes, SG = dwt_parser(excel_file)
+async def upload_excel( file: UploadFile, username: str = Form(...), file_name: str = Form(...)):
+    try:
+        bytes_data = io.BytesIO(file.file.read())
+        excel_file = pd.ExcelFile(bytes_data)
+        retentions, energies, sizes, SG = dwt_parser(excel_file)
    
-    ore_params = get_ore_params(retentions, energies, sizes, SG)
-    print(ore_params)
-    A, b = get_A_b_params(ore_params)
-    print(A, b)
+        ore_params = get_ore_params(retentions, energies, sizes, SG)
+        print(ore_params)
+        A, b = get_A_b_params(ore_params)
+        print(A, b)
+    except Exception as e:
+        raise HTTPException(403, "invalid file")
     return ore_params

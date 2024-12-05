@@ -41,3 +41,12 @@ def get_ore_params(retentions, energies, sizes, SG):
             retentions_at_t10.energy.append(energy)
             retentions_at_t10.t10.append(retention_at_t10)
     return retentions_at_t10
+
+def calculate_params_from_ab(A, b, SG):
+    DWI = 92.56 * SG * (A*b) ** (-.977)
+    SCSE = 52.74 * (A*b) ** (-.441)
+    t_a = 2.6132 * (DWI) ** (-1)
+    M_ia = 390 * (A *b) **  (-.813)
+    M_ic = 303.5 * (A *b) ** (-1)
+    M_ih = 577 * (A *b) ** (-1)
+    return DWI, SCSE, t_a, M_ia, M_ic, M_ih

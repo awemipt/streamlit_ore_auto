@@ -45,7 +45,7 @@ def smc_input_excel():
         st.write({key: value for key, value in zip(df[df.columns[1]][9:14], df[df.columns[2]][9:14])})
     if st.button("Отравить данные"):
         try:
-            asyncio.run(_send_excel(bytes_data, "/api/smc/upload_excel"))
+            asyncio.run(_send_excel(bytes_data, excel_file.name, "/api/smc/upload_excel"))
         except Exception as e:
             st.error(f"Ошибка при отправке данных. \n {traceback.format_exc()}")
         else:

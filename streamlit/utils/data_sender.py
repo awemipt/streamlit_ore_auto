@@ -22,9 +22,9 @@ async def _send(data: dict, endpoint: str):
             resp.raise_for_status()
             response_data = await resp.json()
 
-async def _send_excel(data, endpoint):
+async def _send_excel(data, file_name, endpoint):
     
-    data = {'username': st.session_state['username'], 'file': data.getvalue()}
+    data = {'username': st.session_state['username'], 'file': data.getvalue(), 'file_name': file_name}
     
     async with aiohttp.ClientSession() as session:
         async with session.post(url=BACKEND_URL+endpoint, data=data) as response:
