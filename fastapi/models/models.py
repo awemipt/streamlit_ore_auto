@@ -99,3 +99,10 @@ class SMC_REPORT(Base):
     b = Column(Float, index=True)
     SG = Column(Float, index=True)
     file_name = Column(String, index=True)
+
+
+class SMC_DATA_FOR_GRAPH(Base):
+    __tablename__ = 'SMC_DATA_FOR_GRAPH'
+    __table_args__ = {'schema': schema} 
+
+    id = Column(Integer, primary_key=True, index=True)

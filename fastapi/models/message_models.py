@@ -1,6 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 class SMC_REPORT(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     A: list[float]
     b: float
     SG: float
@@ -10,4 +11,3 @@ class SMC_REPORT(BaseModel):
     M_ia: float
     M_ic: float
     M_ih: float
-

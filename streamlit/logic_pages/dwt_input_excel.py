@@ -29,11 +29,7 @@ def load_excel():
 
 def dwt_input_excel():
     excel_file, bytes_data = load_excel()
-    if excel_file is not None:
-        st.write("Предпросмотр данных:")
-        df = excel_file.parse(excel_file.sheet_names[2])  # Берем первый лист по умолчанию
-        st.data_editor(df)
-        st.write(df.head())
+   
     if st.button("Отравить данные"):
         try:
             asyncio.run(_send_excel(bytes_data, excel_file.name, "/api/dwt/upload_excel"))

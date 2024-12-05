@@ -4,16 +4,16 @@ import aiofiles
 import asyncio
 import os
 from utils import read_json_async
-from crud.cruds import create_SMC, get_SMC, create_SMC_report, create_SMC_raw_data
+from crud.cruds import create_SMC, get_SMC, create_SMC_report, create_SMC_raw_data, get_SMC_reports_list, get_SMC_report, get_SMC_raw_data
 from core import get_db
-
+from models import SMC_REPORT_MESSAGE
 from config import base_config
 from fastapi import UploadFile, File, Form
 router = APIRouter()
 import pandas as pd
 import io
 from logic import smc_parser, get_A_b_params, calculate_params_from_ab
-
+from pydantic import BaseModel
 @router.post('/')
 async def input(data: dict):
     try:
@@ -60,3 +60,14 @@ async def upload_excel( file: UploadFile, username: str = Form(...), file_name: 
         await asyncio.gather(*tasks)
     
     return {"status": "success"}
+
+@router.get("/reports")
+async def get_reports_list():
+    return await get_SMC_reports_list(db=await get_db())
+
+@router.get("/report")
+async def get_report(file_name: str):
+    data = await get_SMC_report(db=await get_db(), file_name=file_name)
+    
+    return data
+    

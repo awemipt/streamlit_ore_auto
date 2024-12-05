@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from models import SMC, DWT_RESULT, SMC_REPORT, SMC_RAW_DATA
-
-
+from models.message_models import SMC_REPORT as SMC_REPORT_MESSAGE
+from sqlalchemy.exc import NoResultFound
 
 async def create_SMC(db: AsyncSession, data):
     db_SMC = SMC(
@@ -40,14 +40,35 @@ async def get_SMC_reports_list(db: AsyncSession):
     samples = [row[0] for row in result.fetchall()]
     return samples
 
-async def get_SMC_report(db: AsyncSession, file_name: str):
-    query = select(SMC_REPORT).where(SMC_REPORT.file_name == file_name)
-    result = await db.execute(query)
-    return result.fetchone()
+async def get_SMC_report(db: AsyncSession, file_name: str) -> SMC_REPORT:
+    try:
+        query =  select(SMC_REPORT).filter(SMC_REPORT.file_name == file_name)
+        result = await db.execute(query)
+        report = result.scalar_one_or_none() 
+        report_dict = {
+            'id': report.id,
+            'M_ic': report.M_ic,
+            'M_ih': report.M_ih,
+            'M_ia': report.M_ia,
+            'SCSE': report.SCSE,
+            't_a': report.t_a,
+            'DWI': report.DWI,
+            'A': report.A,
+            'b': report.b,
+            'SG': report.SG,
+            'file_name': report.file_name
+        }
+  
+        return report_dict
+    except NoResultFound:
+        # Если запись не найдена
+        return None
+
 async def get_SMC_raw_data(db: AsyncSession, file_name: str):
-    query = select(SMC_RAW_DATA).where(SMC_RAW_DATA.file_name == file_name[:-7])
-    result = await db.execute(query)
-    return result.fetchone()
+    
+    return None
+
+
 async def create_SMC_report(db: AsyncSession, data):
     db_SMC_report = SMC_REPORT(
         **data

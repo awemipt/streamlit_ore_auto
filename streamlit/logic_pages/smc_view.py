@@ -7,31 +7,23 @@ BACKEND_URL=base_config.BACKEND_URL_DEV
 
 def smc_out():
     st.title("Отображение записей SMC")
+    reports = asyncio.run(get_smc_ports())
+    report_name = st.selectbox("Выберите отчет", reports)
+    report = asyncio.run(get_smc_report(report_name))
+    st.write(report)
    
-    page_number = 0
-    records_per_page = st.selectbox("Отображать записей на страницу:", [5, 10, 20, 50], index=1)
-    if st.button("Следующая страница"):
-        page_number += 1
-    if page_number > 0 :
-        if  st.button("Предыдущая страница"):
-            page_number -= 1
-    offset = page_number * records_per_page
-    try:
-        data = asyncio.run(_get('/smc', records_per_page, offset))
-    except:
-        data = None
-    if data:
-        df = pd.DataFrame(data)
-        st.dataframe(df)
-    else:
-        st.write("Нет данных для отображения.")
     
 
-async def _get(endpoint, limit, offset):
-    params = {"limit": limit, "offset": offset}
+async def get_smc_ports():
     async with aiohttp.ClientSession() as session:
-        async with session.get(url=BACKEND_URL+endpoint, params=params) as resp :
+        async with session.get(url=BACKEND_URL+'/api/smc/reports') as resp :
             resp.raise_for_status()
             response_data = await resp.json()
             return response_data
-        
+
+async def get_smc_report(report_name):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url=BACKEND_URL+f'/api/smc/report', params={"file_name": report_name}) as resp :
+            resp.raise_for_status()
+            response_data = await resp.json()
+            return response_data
