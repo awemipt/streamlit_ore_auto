@@ -13,7 +13,7 @@ from fastapi import UploadFile, File, Form
 router = APIRouter()
 import pandas as pd
 import io
-from logic import smc_parser
+from logic import smc_parser, get_A_b_params
 @router.post('/')
 async def input(data: dict):
     try:
@@ -31,9 +31,10 @@ async def get_smc_records(limit: int = 10, offset: int = 0):
 
 @router.post("/upload_excel")
 async def upload_excel( file: UploadFile, username: str = Form(...)):
-    print(file.file)
     bytes_data = io.BytesIO(file.file.read())
     excel_file = pd.ExcelFile(bytes_data, engine='openpyxl')
     print(excel_file.sheet_names)
-    res = smc_parser(excel_file)
+    res, SG = smc_parser(excel_file)
+    A, b = get_A_b_params(res)
+    print(A, b)
     return {"status": "success"}

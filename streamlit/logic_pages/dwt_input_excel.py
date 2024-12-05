@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import io   
 import traceback
-
+import asyncio
 from utils.data_sender import _send_excel
 
 def load_excel():
@@ -13,25 +13,31 @@ def load_excel():
             bytes_data = io.BytesIO(uploaded_file.getvalue())
             
             excel_file = pd.ExcelFile(bytes_data)
-            sheet_names = excel_file.sheet_names
-            
+         
+            bytes_data.name = uploaded_file.name
+            excel_file.name = uploaded_file.name
             
             st.success("Файл успешно загружен!")
-            return excel_file
+            return excel_file, bytes_data
             
         except Exception as e:
             st.error(f"Ошибка при загрузке файла. \n {traceback.format_exc()}")
-            return None
+            return None, None
     
-    return None
+    return None, None
 
 
 def dwt_input_excel():
-    excel_file = load_excel()
+    excel_file, bytes_data = load_excel()
     if excel_file is not None:
         st.write("Предпросмотр данных:")
-        df = excel_file.parse(excel_file.sheet_names[0])  # Берем первый лист по умолчанию
+        df = excel_file.parse(excel_file.sheet_names[2])  # Берем первый лист по умолчанию
         st.data_editor(df)
         st.write(df.head())
     if st.button("Отравить данные"):
-        _send_excel(excel_file, "dwt/upload_excel")
+        try:
+            asyncio.run(_send_excel(bytes_data, "/api/dwt/upload_excel"))
+        except Exception as e:
+            st.error(f"Ошибка при отправке данных. \n {traceback.format_exc()}")
+        else:
+            st.success("Данные успешно отправлены!")
