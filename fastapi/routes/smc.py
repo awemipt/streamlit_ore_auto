@@ -9,9 +9,10 @@ from core import get_db
 # from LogstashJsonSocketHandler import get_logger
 # logger = get_logger(__name__)
 from config import base_config
+from fastapi import UploadFile, File, Form
 router = APIRouter()
-
-
+import pandas as pd
+import io
 @router.post('/')
 async def input(data: dict):
     try:
@@ -26,3 +27,11 @@ async def get_smc_records(limit: int = 10, offset: int = 0):
     result = await get_SMC(db=await get_db(), limit=limit, offset=offset)
     records =  result.scalars().all()
     return records
+
+@router.post("/upload_excel")
+async def upload_excel( file: UploadFile, username: str = Form(...)):
+    print(file.file)
+    bytes_data = io.BytesIO(file.file.read())
+    excel_file = pd.ExcelFile(bytes_data, engine='openpyxl')
+    print(excel_file.sheet_names)
+    return {"status": "success"}

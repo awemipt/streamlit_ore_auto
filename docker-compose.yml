@@ -76,7 +76,7 @@ services:
     ports:
       - "${API_PORT}:80"
     depends_on:
-      - streamlit
+      # - streamlit
       - fastapi
     networks:
       - frontend

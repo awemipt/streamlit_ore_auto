@@ -22,14 +22,12 @@ async def _send(data: dict, endpoint: str):
             resp.raise_for_status()
             response_data = await resp.json()
 
-async def send_excel_to_backend(excel_file, endpoint):
-    excel_bytes = excel_file.read()
+async def _send_excel(data, endpoint):
     
-    files = {'file': (excel_file.name, excel_bytes, 'application/vnd.ms-excel')}
+    data = {'username': st.session_state['username'], 'file': data.getvalue()}
     
-    # Отправляем POST запрос на бэкенд
     async with aiohttp.ClientSession() as session:
-        async with session.post(f'http://{BACKEND_URL}/api/upload_excel', data=files) as response:
+        async with session.post(url=BACKEND_URL+endpoint, data=data) as response:
             if response.status == 200:
                 st.success("Файл успешно отправлен на сервер")
                 return await response.json()
