@@ -1,6 +1,6 @@
 import streamlit as st
 
-from logic_pages import smc_out, dwt_view_page
+from logic_pages import smc_out, dwt_out
 
 
 def spb_pages():
@@ -9,5 +9,5 @@ def spb_pages():
         smc_out()
  
     elif page == "dwt_view":
-        dwt_view_page()
+        dwt_out()
   

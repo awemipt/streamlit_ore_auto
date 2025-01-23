@@ -106,3 +106,36 @@ class SMC_DATA_FOR_GRAPH(Base):
     __table_args__ = {'schema': schema} 
 
     id = Column(Integer, primary_key=True, index=True)
+
+
+class DWT_RAW_DATA(Base):
+    __tablename__ = 'DWT_RAW_DATA'
+    __table_args__ = {'schema': schema} 
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, index=True)
+    created_timestamp = Column(Float, index=True)
+    file = Column(LargeBinary)
+    file_name = Column(String, index=True)
+
+class DWT_REPORT(Base):
+    __tablename__ = 'DWT_REPORT'
+    __table_args__ = {'schema': schema} 
+    id = Column(Integer, primary_key=True, index=True)
+    M_ic = Column(Float, index=True)
+    M_ih = Column(Float, index=True)
+    M_ia = Column(Float, index=True)
+    SCSE = Column(Float, index=True)
+    t_a = Column(Float, index=True)
+    DWI = Column(Float, index=True)
+    A = Column(Float, index=True)
+    b = Column(Float, index=True)
+    SG = Column(Float, index=True)
+    file_name = Column(String, index=True)
+
+
+class DWT_DATA_FOR_GRAPH(Base):
+    __tablename__ = 'DWT_DATA_FOR_GRAPH'
+    __table_args__ = {'schema': schema} 
+
+    id = Column(Integer, primary_key=True, index=True)
