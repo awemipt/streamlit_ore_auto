@@ -28,7 +28,7 @@ async def create_DWT_RESULT(db: AsyncSession, data):
     return db_DWT
 
 async def get_DWT_samples(db: AsyncSession):
-    query = select(DWT_RESULT.sample_name).distinct()
+    query = select(DWT_RESULT.sample_name)
     result = await db.execute(query)
     samples = [row[0] for row in result.fetchall()]
     return samples

@@ -2,6 +2,8 @@ import traceback
 from fastapi import APIRouter, HTTPException
 from crud import create_DWT_RESULT, get_SMC, get_DWT_samples, create_DWT_report, create_DWT_raw_data
 from core import get_db
+from sqlalchemy import select
+from models import DWT_RESULT,DWT_REPORT
 from crud.data_from_table import get_t10_data
 from config import base_config
 import pandas as pd
@@ -30,7 +32,15 @@ async def input(data: dict):
 async def get_dwt_samples():    
     try:
         db = await get_db()
-        return await get_DWT_samples(db=db)
+        return [
+        {
+            "id": report.id,
+            "name": report.name,
+            "created_at": report.created_at.strftime("%Y-%m-%d %H:%M"),
+            # другие поля
+        }
+        for report in await db.execute(query=DWT_RESULT.select())
+        ]
     finally:
         await db.close()  #
 
@@ -49,7 +59,7 @@ async def upload_excel( file: UploadFile, username: str = Form(...), file_name: 
         bytes_data = io.BytesIO(file.file.read())
         excel_file = pd.ExcelFile(bytes_data)
         retentions, energies, sizes, SG = dwt_parser(excel_file)
-   
+
         ore_params = get_ore_params(retentions, energies, sizes, SG)
         print(ore_params)
         A, b = get_A_b_params(ore_params)
@@ -68,7 +78,10 @@ async def upload_excel( file: UploadFile, username: str = Form(...), file_name: 
                                                               "M_ia": M_ia, 
                                                               "M_ic": M_ic, 
                                                               "M_ih": M_ih,
-                                                              "file_name": file_name.split('.')[0]+'_report'}, 
+                                                              "file_name": file_name.split('.')[0]+'_report',
+                                                              "T_10": ore_params.t10,
+                                                              "Energies": ore_params.energy,
+                                                              "Sizes": sizes}, 
                                                               db=await get_db())),
                     asyncio.create_task(create_DWT_raw_data(data={'file': bytes_data.getvalue(), 
                                                                   'username': username, 
@@ -80,9 +93,34 @@ async def upload_excel( file: UploadFile, username: str = Form(...), file_name: 
 
 @router.get("/reports")
 async def get_reports_list():
-    return await get_DWT_reports_list(db=await get_db())
+    # return await get_DWT_reports_list(db=await get_db())
+    db = await get_db()
+    try:
+        async with db:
+            query =  select(DWT_REPORT.id, DWT_REPORT.file_name)
+            result = await db.execute(query)
+            curr = result.fetchall()
+            
+            return [
+            {
+                "id": report[0],
+                "name": report[1],
+                
+                
+            }
+            for report in curr]
+    except:
+        pass
 
 @router.get("/report")
-async def get_report(file_name: str):
-    data = await get_DWT_report(db=await get_db(), file_name=file_name)
-    
+async def get_report(report_id: int):
+    db = await get_db()
+    query = select(DWT_REPORT).where(DWT_REPORT.id == report_id)
+
+    result = await db.execute(query)
+    curr = [dict(row._mapping) for row in result]
+    graph_data = []
+    return curr
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    return dict(report)

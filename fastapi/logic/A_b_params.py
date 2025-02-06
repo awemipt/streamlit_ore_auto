@@ -20,8 +20,7 @@ def get_A_b_params(ore):
     return A, b
 
 
-def get_A_b_params_dwt(ore):
-    return 1, 2
+
 
 def get_ore_params(retentions, energies, sizes, SG):
 

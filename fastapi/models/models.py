@@ -132,7 +132,9 @@ class DWT_REPORT(Base):
     b = Column(Float, index=True)
     SG = Column(Float, index=True)
     file_name = Column(String, index=True)
-
+    T_10 = Column(ARRAY(Float), default=[]) 
+    Energies = Column(ARRAY(Float), default=[]) 
+    Sizes = Column(ARRAY(Float), default=[])
 
 class DWT_DATA_FOR_GRAPH(Base):
     __tablename__ = 'DWT_DATA_FOR_GRAPH'
