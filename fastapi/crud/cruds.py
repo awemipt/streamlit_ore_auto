@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from models import SMC, DWT_RESULT, SMC_REPORT, SMC_RAW_DATA, DWT_REPORT, DWT_RAW_DATA 
+from models import SMC, DWT_RESULT, SMC_REPORT, SMC_RAW_DATA, DWT_REPORT, DWT_RAW_DATA, DWT_GRAPH_DATA 
 from models.message_models import SMC_REPORT as SMC_REPORT_MESSAGE
 from sqlalchemy.exc import NoResultFound
 
@@ -96,7 +96,14 @@ async def create_DWT_report(db: AsyncSession, data):
     await db.commit()
     await db.refresh(db_DWT_report)
     return db_DWT_report
-
+async def create_DWT_graph_data(db: AsyncSession, data):
+    db_DWT_graph_data = DWT_GRAPH_DATA(
+        **data
+    )
+    db.add(db_DWT_graph_data)
+    await db.commit()
+    await db.refresh(db_DWT_graph_data)
+    return db_DWT_graph_data
 async def create_DWT_raw_data(db: AsyncSession, data):
     db_DWT_raw_data = DWT_RAW_DATA(
         **data

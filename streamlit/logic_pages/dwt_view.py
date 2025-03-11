@@ -2,6 +2,8 @@ import numpy as np
 import streamlit as st
 import requests
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
 import pandas as pd
 from os import getenv
 from scipy.optimize import curve_fit
@@ -23,8 +25,12 @@ def dwt_out():
         )
         
         if st.button("Показать отчет"):
-            report = asyncio.run(get_dwt_report(selected['id']))[0]["DWT_REPORT"]
+            data = asyncio.run(get_dwt_report(selected['id']))
+            report = data[0]["DWT_REPORT"] 
+
             st.write(report)
+            dwt_graph_data = data[1]["DWT_GRAPH_DATA"]
+            st.write(dwt_graph_data)
             A, b =  report["A"], report['b']
             t10 = np.array(report['T_10'])
             energies = np.array(report['Energies'])
@@ -77,6 +83,60 @@ def dwt_out():
                 template="plotly_dark"
             )
             st.plotly_chart(fig1, use_container_width=True)
+            groups = [(0, 1, 2), (3, 4, 5), (6, 7, 8), (9, 10, 11), (12, 13, 14)]
+
+            for group in groups:
+                fig = make_subplots(
+                    rows=3, 
+                    cols=1, 
+                    subplot_titles=[f'График {i}' for i in group],
+                    vertical_spacing=0.1
+                )
+                
+                for idx, i in enumerate(group, start=1):
+                    sizes = dwt_graph_data['sizes_to_graph'][i]
+                    retentions = dwt_graph_data['retentions_to_graph'][i]
+                    max_size = max(sizes)
+                    x_line = max_size / 10
+                    
+                    # Добавление основного графика
+                    fig.add_trace(
+                        go.Scatter(
+                            x=sizes, 
+                            y=retentions, 
+                            mode='lines', 
+                            name=f'Данные {i}'
+                        ),
+                        row=idx, 
+                        col=1
+                    )
+                    
+                    # Добавление вертикальной линии
+                    fig.add_shape(
+                        type='line',
+                        x0=x_line,
+                        x1=x_line,
+                        y0=0,
+                        y1=100,
+                        yref='paper',
+                        line=dict(color='red', dash='dash'),
+                        row=idx,
+                        col=1
+                    )
+                    
+                    # Настройка осей
+                    fig.update_yaxes(title_text='Удержание (%)', row=idx, col=1)
+                    fig.update_xaxes(title_text='Размер', row=idx, col=1)
+                
+                # Общие настройки
+                fig.update_layout(
+                    height=1200,
+                    width=800,
+                    title_text=f'Графики {group[0]}-{group[-1]}',
+                    showlegend=False
+                )
+                
+                st.plotly_chart(fig)
     else:
         st.warning("Нет доступных отчетов")
     

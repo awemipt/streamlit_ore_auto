@@ -12,7 +12,8 @@ def dwt_parser(file: bytes):
     if res_sheet == -1:
         raise ValueError("Sheet 'Ввод результатов теста' not found")
     df = pd.read_excel(excel_file, sheet_name=sheets[res_sheet])
-    sizes = [np.array(i) for i in (df[df.columns[0]][37:52], df[df.columns[0]][61:76], 
+    sizes = [np.array(list(i)) for i in (df[df.columns[0]][37:52], df[df.columns[0]][61:76], 
+    
         df[df.columns[0]][85:100], df[df.columns[0]][109:124], df[df.columns[0]][133:148])]
     retentions = np.array([
         [np.array(list(i)) for i in (df[df.columns[3]][37:52], df[df.columns[3]][61:76], 

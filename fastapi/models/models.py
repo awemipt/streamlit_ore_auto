@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Float, Integer, String, DateTime,  Boolean, ARRAY, ForeignKey, LargeBinary, JSON
 from sqlalchemy.sql import func
 from sqlalchemy.schema import DefaultClause
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
@@ -136,8 +137,12 @@ class DWT_REPORT(Base):
     Energies = Column(ARRAY(Float), default=[]) 
     Sizes = Column(ARRAY(Float), default=[])
 
-class DWT_DATA_FOR_GRAPH(Base):
+
+class DWT_GRAPH_DATA(Base):
     __tablename__ = 'DWT_DATA_FOR_GRAPH'
     __table_args__ = {'schema': schema} 
 
     id = Column(Integer, primary_key=True, index=True)
+    sizes_to_graph  = Column(postgresql.ARRAY(Float))
+    retentions_to_graph = Column(postgresql.ARRAY(Float))
+    file_name = Column(String, index=True)

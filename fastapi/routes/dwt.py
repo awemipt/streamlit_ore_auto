@@ -1,9 +1,9 @@
 import traceback
 from fastapi import APIRouter, HTTPException
-from crud import create_DWT_RESULT, get_SMC, get_DWT_samples, create_DWT_report, create_DWT_raw_data
+from crud import create_DWT_RESULT, get_SMC, get_DWT_samples, create_DWT_report, create_DWT_raw_data, create_DWT_graph_data
 from core import get_db
 from sqlalchemy import select
-from models import DWT_RESULT,DWT_REPORT
+from models import DWT_RESULT,DWT_REPORT, DWT_GRAPH_DATA
 from crud.data_from_table import get_t10_data
 from config import base_config
 import pandas as pd
@@ -60,7 +60,7 @@ async def upload_excel( file: UploadFile, username: str = Form(...), file_name: 
         excel_file = pd.ExcelFile(bytes_data)
         retentions, energies, sizes, SG = dwt_parser(excel_file)
 
-        ore_params = get_ore_params(retentions, energies, sizes, SG)
+        ore_params, retentions_to_graph, sizes_to_graph = get_ore_params(retentions, energies, sizes, SG)
         print(ore_params)
         A, b = get_A_b_params(ore_params)
         print(A, b)
@@ -86,7 +86,12 @@ async def upload_excel( file: UploadFile, username: str = Form(...), file_name: 
                     asyncio.create_task(create_DWT_raw_data(data={'file': bytes_data.getvalue(), 
                                                                   'username': username, 
                                                                   'file_name': file_name}, 
-                                                                  db=await get_db()))]
+                                                                  db=await get_db())),
+                    asyncio.create_task(create_DWT_graph_data(data={'retentions_to_graph': retentions_to_graph, 
+                                                                  'sizes_to_graph': sizes_to_graph, 
+                                                                    "file_name": file_name.split('.')[0]+'_report'},
+                                                                  db=await get_db()))
+                                                                  ]
         await asyncio.gather(*tasks)
     
     return ore_params
@@ -118,9 +123,16 @@ async def get_report(report_id: int):
     query = select(DWT_REPORT).where(DWT_REPORT.id == report_id)
 
     result = await db.execute(query)
+    query2 = select(DWT_REPORT.file_name).where(DWT_REPORT.id == report_id)
+
+    result2 = await db.execute(query2)
+    name = [row._mapping for row in result2]
+    query3 = select(DWT_GRAPH_DATA).where(DWT_GRAPH_DATA.file_name==name[0]['file_name'])
+    result3 = await db.execute(query3)
     curr = [dict(row._mapping) for row in result]
-    graph_data = []
-    return curr
+    curr2 = [dict(row._mapping) for row in result3]
+    
+    return curr + curr2
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
     return dict(report)
